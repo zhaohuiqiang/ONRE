@@ -16,7 +16,7 @@ def pcnn_att_rl(is_training):
             x = framework.encoder.cnn(embedding, 2, activation=tf.nn.relu)
             logit, repre = framework.selector.no_bag(x)
             policy_agent_loss = framework.classifier.softmax_cross_entropy(logit)
-            policy_agent_output = output(logit)
+            policy_agent_output = framework.classifier.output(logit)
 
         word_embedding = framework.embedding.word_embedding()
         pos_embedding = framework.embedding.pos_embedding()
@@ -24,7 +24,7 @@ def pcnn_att_rl(is_training):
         x = framework.encoder.pcnn(embedding, FLAGS.hidden_size, framework.mask, activation=tf.nn.relu)
         logit, repre = framework.selector.attention(x, framework.scope, framework.label_for_select)
         loss = framework.classifier.softmax_cross_entropy(logit)
-        output = output(logit)
+        output = framework.classifier.output(logit)
 
         framework.init_policy_agent(policy_agent_loss, policy_agent_output, optimizer=tf.train.GradientDescentOptimizer)
         framework.init_train_model(loss, output, optimizer=tf.train.GradientDescentOptimizer)
