@@ -1,17 +1,16 @@
-import tensorflow as tf
-import numpy as np
-import tensorflow.contrib.slim as slim
 import datetime
+import math
+import os
 import sys
+
+import numpy as np
+import sklearn.metrics
+import tensorflow as tf
+
+from network.classifier import Classifier
 from network.embedding import Embedding
 from network.encoder import Encoder
 from network.selector import Selector
-from network.classifier import Classifier
-import os
-import sklearn.metrics
-
-import time
-import math
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -444,7 +443,7 @@ class Framework(object):
         if not os.path.exists(FLAGS.checkpoint_dir):
             os.mkdir(FLAGS.checkpoint_dir)
         if self.use_bag:
-            train_order = list(range(len(self.data_train_instance_triple)))
+            train_order = list(range(len(self.data_instance_triple)))
         else:
             train_order = list(range(len(self.data_train_word)))
         for epoch in range(FLAGS.max_epoch):
@@ -466,7 +465,7 @@ class Framework(object):
             action_result_his = np.zeros(self.data_train_label.shape, dtype=np.int32)
             for i in range(tot_batch):
                 # data prepare
-                input_scope = np.take(self.data_train_instance_scope,
+                input_scope = np.take(self.data_instance_triple,
                                       train_order[i * FLAGS.batch_size:(i + 1) * FLAGS.batch_size], axis=0)
                 index = []
                 scope = [0]
@@ -513,7 +512,7 @@ class Framework(object):
                         'tot delete : %f | reward : %f | average loss : %f' % (tot_delete, reward, average_loss))
                     sys.stdout.flush()
                     for j in range(i - batch_count + 1, i + 1):
-                        input_scope = np.take(self.data_train_instance_scope,
+                        input_scope = np.take(self.data_instance_triple,
                                               train_order[j * FLAGS.batch_size:(j + 1) * FLAGS.batch_size], axis=0)
                         index = []
                         for num in input_scope:
@@ -530,7 +529,7 @@ class Framework(object):
 
             for i in range(int(len(train_order) / float(FLAGS.batch_size))):
                 if self.use_bag:
-                    input_scope = np.take(self.data_train_instance_scope,
+                    input_scope = np.take(self.data_instance_triple,
                                           train_order[i * FLAGS.batch_size:(i + 1) * FLAGS.batch_size], axis=0)
                     index = []
                     scope = [0]

@@ -98,8 +98,8 @@ class Encoder(object):
                       epsilon=1e-8,
                       scope="ln",
                       reuse=tf.AUTO_REUSE):
-        '''Applies layer normalization.
-        
+        """Applies layer normalization.
+
         Args:
           inputs: A tensor with 2 or more dimensions, where the first dimension has
             `batch_size`.
@@ -107,10 +107,10 @@ class Encoder(object):
           scope: Optional scope for `variable_scope`.
           reuse: Boolean, whether to reuse the weights of a previous layer
             by the same name.
-          
+
         Returns:
           A tensor with the same shape and data dtype as `inputs`.
-        '''
+        """
         with tf.variable_scope(scope, reuse=reuse):
             inputs_shape = inputs.shape.as_list()
             params_shape = inputs_shape[-1:]
@@ -133,23 +133,23 @@ class Encoder(object):
                                 scope="multihead_attention",
                                 reuse=tf.AUTO_REUSE,
                                 residual=True):
-        '''Applies multihead attention.
-        
+        """Applies multihead attention.
+
         Args:
           queries: A 3d tensor with shape of [N, T_q, C_q].
           keys: A 3d tensor with shape of [N, T_k, C_k].
           num_units: A scalar. Attention size.
           dropout_rate: A floating point number.
           is_training: Boolean. Controller of mechanism for dropout.
-          causality: Boolean. If true, units that reference the future are masked. 
+          causality: Boolean. If true, units that reference the future are masked.
           num_heads: An int. Number of heads.
           scope: Optional scope for `variable_scope`.
           reuse: Boolean, whether to reuse the weights of a previous layer
             by the same name.
-            
+
         Returns
-          A 3d tensor with shape of (N, T_q, C)  
-        '''
+          A 3d tensor with shape of (N, T_q, C)
+        """
         with tf.variable_scope(scope, reuse=reuse):
             # Set the fall back option for num_units
             if num_units is None:
@@ -207,18 +207,18 @@ class Encoder(object):
                         num_units=[2048, 512],
                         scope="multihead_attention",
                         reuse=tf.AUTO_REUSE):
-        '''Point-wise feed forward net.
-        
+        """Point-wise feed forward net.
+
         Args:
           inputs: A 3d tensor with shape of [N, T, C].
           num_units: A list of two integers.
           scope: Optional scope for `variable_scope`.
           reuse: Boolean, whether to reuse the weights of a previous layer
             by the same name.
-            
+
         Returns:
           A 3d tensor with the same shape and dtype as inputs
-        '''
+        """
         with tf.variable_scope(scope, reuse=reuse):
             # Inner layer
             params = {"inputs": inputs, "filters": num_units[0], "kernel_size": 1,
@@ -237,18 +237,18 @@ class Encoder(object):
     def attention_is_all_you_need(self, x, hidden_size, mask, num_blocks=4, num_heads=8, activation=tf.nn.relu):
         max_length = x.get_shape()[1]
         self.enc = self.__dropout__(tf.layers.dense(x, hidden_size))
-        ## Blocks
+        # Blocks
         for i in range(num_blocks):
             with tf.variable_scope("num_blocks_{}".format(i)):
-                ### Multihead Attention
+                # Multihead Attention
                 self.enc = self.__multihead_attention__(queries=self.enc,
-                                                   keys=self.enc,
-                                                   num_units=hidden_size,
-                                                   num_heads=num_heads,
-                                                   dropout_rate=self.dropout,
-                                                   is_training=self.is_training,
-                                                   causality=False)
-                ### Feed Forward
+                                                        keys=self.enc,
+                                                        num_units=hidden_size,
+                                                        num_heads=num_heads,
+                                                        dropout_rate=self.dropout,
+                                                        is_training=self.is_training,
+                                                        causality=False)
+                # Feed Forward
                 self.enc = self.__feedforward__(self.enc, num_units=[4 * hidden_size, hidden_size])
         # piece-wise pooling
         x = self.__piece_pooling__(self.enc, max_length, hidden_size, mask)

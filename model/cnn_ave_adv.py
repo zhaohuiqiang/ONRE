@@ -24,7 +24,7 @@ def cnn_ave_adv(is_training):
             x = framework.encoder.cnn(new_embedding, FLAGS.hidden_size, activation=tf.nn.relu)
             logit, repre = framework.selector.average(x, framework.scope)
             loss = framework.classifier.softmax_cross_entropy(logit)
-            output = framework.classifier.output(logit)
+            output = output(logit)
         framework.init_train_model(loss, output, optimizer=tf.train.GradientDescentOptimizer)
         framework.load_train_data()
         framework.train()

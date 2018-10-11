@@ -24,7 +24,7 @@ def birnn_att_adv(is_training):
             x = framework.encoder.birnn(new_embedding, FLAGS.hidden_size, framework.length)
             logit, repre = framework.selector.attention(x, framework.scope, framework.label_for_select)
             loss = framework.classifier.softmax_cross_entropy(logit)
-            output = framework.classifier.output(logit)
+            output = output(logit)
         framework.init_train_model(loss, output, optimizer=tf.train.GradientDescentOptimizer)
         framework.load_train_data()
         framework.train()
