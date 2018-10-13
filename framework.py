@@ -85,10 +85,10 @@ class Framework(object):
         print('reading finished')
         print(('mentions         : %d' % (len(self.data_instance_triple))))
         print(('sentences        : %d' % (len(self.data_train_length))))
-        print(('relations        : %d' % (FLAGS.num_classes)))
-        print(('word size        : %d' % (FLAGS.word_size)))
-        print(('position size     : %d' % (FLAGS.pos_size)))
-        print(('hidden size        : %d' % (FLAGS.hidden_size)))
+        print(('relations        : %d' % FLAGS.num_classes))
+        print(('word size        : %d' % FLAGS.word_size))
+        print(('position size     : %d' % FLAGS.pos_size))
+        print(('hidden size        : %d' % FLAGS.hidden_size))
 
         self.reltot = {}
         for index, i in enumerate(self.data_train_label):
@@ -97,8 +97,8 @@ class Framework(object):
             else:
                 self.reltot[i] += 1.0
         for i in self.reltot:
-            self.reltot[i] = 1 / (self.reltot[i] ** (0.05))
-        print((self.reltot))
+            self.reltot[i] = 1 / (self.reltot[i] ** 0.05)
+        print(self.reltot)
 
     def load_test_data(self):
         print('reading test data...')
@@ -120,10 +120,10 @@ class Framework(object):
         print('reading finished')
         print(('mentions         : %d' % (len(self.data_instance_triple))))
         print(('sentences        : %d' % (len(self.data_test_length))))
-        print(('relations        : %d' % (FLAGS.num_classes)))
-        print(('word size        : %d' % (FLAGS.word_size)))
-        print(('position size     : %d' % (FLAGS.pos_size)))
-        print(('hidden size        : %d' % (FLAGS.hidden_size)))
+        print(('relations        : %d' % FLAGS.num_classes))
+        print(('word size        : %d' % FLAGS.word_size))
+        print(('position size     : %d' % FLAGS.pos_size))
+        print(('hidden size        : %d' % FLAGS.hidden_size))
 
     def init_train_model(self, loss, output, optimizer=tf.train.GradientDescentOptimizer):
         print('initializing training model...')
@@ -465,7 +465,7 @@ class Framework(object):
             action_result_his = np.zeros(self.data_train_label.shape, dtype=np.int32)
             for i in range(tot_batch):
                 # data prepare
-                input_scope = np.take(self.data_instance_triple,
+                input_scope = np.take(self.data_instance_scope,
                                       train_order[i * FLAGS.batch_size:(i + 1) * FLAGS.batch_size], axis=0)
                 index = []
                 scope = [0]
@@ -512,11 +512,12 @@ class Framework(object):
                         'tot delete : %f | reward : %f | average loss : %f' % (tot_delete, reward, average_loss))
                     sys.stdout.flush()
                     for j in range(i - batch_count + 1, i + 1):
-                        input_scope = np.take(self.data_instance_triple,
-                                              train_order[j * FLAGS.batch_size:(j + 1) * FLAGS.batch_size], axis=0)
-                        index = []
-                        for num in input_scope:
-                            index = index + list(range(num[0], num[1] + 1))
+                        # input_scope = np.take(self.data_instance_scope,
+                        #                       train_order[j * FLAGS.batch_size:(j + 1) * FLAGS.batch_size], axis=0)
+                        # index = []
+                        # for num in input_scope:
+                        #     index = index + list(range(num[0], num[1] + 1))
+                        index = list(range(j * FLAGS.batch_size, (j + 1) * FLAGS.batch_size))
                         batch_result = action_result_his[index]
                         weights = np.ones(batch_result.shape, dtype=np.float32)
                         weights *= reward
@@ -529,7 +530,7 @@ class Framework(object):
 
             for i in range(int(len(train_order) / float(FLAGS.batch_size))):
                 if self.use_bag:
-                    input_scope = np.take(self.data_instance_triple,
+                    input_scope = np.take(self.data_instance_scope,
                                           train_order[i * FLAGS.batch_size:(i + 1) * FLAGS.batch_size], axis=0)
                     index = []
                     scope = [0]
