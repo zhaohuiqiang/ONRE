@@ -1,11 +1,11 @@
 import sklearn.metrics
 import matplotlib
+# Use 'Agg' so this program could run on a remote server
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
 import os
-# Use 'Agg' so this program could run on a remote server
-matplotlib.use('Agg')
 
 result_dir = './test_result'
 
