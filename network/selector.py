@@ -43,7 +43,7 @@ class Selector(object):
                                               initializer=tf.contrib.layers.xavier_initializer())
             bias = tf.get_variable('bias', [self.num_classes], dtype=tf.float32,
                                    initializer=tf.contrib.layers.xavier_initializer())
-        return tf.matmul(x, tf.transpose(relation_matrix))
+        return tf.matmul(x, tf.transpose(relation_matrix)) + bias
 
     def no_bag(self, x):
         with tf.name_scope("no_bag"):
